@@ -29,7 +29,7 @@ float hypothesis(const float xP, const float theta_0P = 0.0f, const float theta_
 * @return Total error count
 */
 float cost(const vector<float>& xP, const vector<float>& yP, const float theta_0P, const float theta_1P) {
-	// Handle size difference
+	// Handle datasets size difference
 	if (xP.size() != yP.size()) {
 		cout << "x and y should have the same size" << endl;
 
@@ -53,6 +53,44 @@ float cost(const vector<float>& xP, const vector<float>& yP, const float theta_0
 	float averageError = errorSum / (2.0f * dataSize);
 
 	return averageError;
+}
+
+/**
+* Using gradient descent algorithm, find the best suiting thetas for the dataset
+* 
+* @param theta_0: ordinate interception
+* @param theta_1: slope
+* @param alpha: learning rate
+* @param x: inputs
+* @param y: actual outputs
+* 
+* @return improved thetas
+*/
+vector<float> gradientDescent(const float theta_0P, const float theta_1P, const float alphaP, const vector<float>& xP, const vector<float>& yP) {
+	// Handle datasets size difference
+	if (xP.size() != yP.size()) {
+		cout << "x and y should have the same size" << endl;
+		
+		vector<float> wrongThetas{ 0.0f, 0.0f };
+		return wrongThetas;
+	}
+	
+	float theta_0 = theta_0P;
+	float theta_1 = theta_1P;
+
+
+
+	vector<float> thetas{ theta_0, theta_1 };
+	return thetas;
+}
+
+void iteratorsTest(vector<float>& xP) {
+	vector<float>::iterator itr;
+
+	for (itr = xP.begin(); itr < xP.end(); itr++)
+	{
+		cout << *itr << endl;
+	}
 }
 
 int main(int argc, char* argv[])
