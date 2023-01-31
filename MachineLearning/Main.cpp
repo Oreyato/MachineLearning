@@ -2,7 +2,49 @@
 #include <vector>
 #include <math.h>
 
+#include <fstream>
+#include <sstream>
+
 using namespace std;
+
+/*
+* Retrieve values from the given file and turn it into float vectors
+* 
+* @param filePath: relative or absolute path to the file location
+*/
+const vector<vector<float>> retrieveCsvFileData(string filePathP) {
+	ifstream file{ filePathP, ifstream::in };
+
+	string line, val;
+	vector<string> row;
+
+	vector<float> xVal;
+	vector<float> yVal;
+
+	if (file.is_open()) {
+		// Skip first line
+		getline(file, line);
+
+		// Read line
+		while (getline(file, line)) {
+			row.clear();
+
+			stringstream str{ line };
+
+			// By line, create characters array 
+			// and stop when facing a ","
+			while (getline(str, val, ','))
+			{
+				row.push_back(val);
+			}
+
+			xVal.push_back(std::stof(row[0]));
+			yVal.push_back(std::stof(row[1]));
+		}
+	}
+
+	return vector<vector<float>> { xVal, yVal };
+}
 
 /**
 * Predict y value
@@ -95,14 +137,14 @@ void iteratorsTest(vector<float>& xP) {
 
 int main(int argc, char* argv[])
 { 
-	cout << hypothesis(5.0f, 2.0f, 2.f) << endl;
+	const vector<vector<float>> retrievedData = retrieveCsvFileData("Resources/test.csv");
 
-	vector<float> xVal = {
-		1.0f, 2.0f, 3.0f, 4.0f, 5.0f
-	};
-	vector<float> yVal = {
-		5.0f, 10.0f, 15.0f, 18.0f, 21.0f
-	};
+	const vector<float> xVal{ retrievedData[0] };
+	const vector<float> yVal{ retrievedData[1] };
+
+
+
+	cout << hypothesis(5.0f, 2.0f, 2.f) << endl;
 
 	cout << cost(xVal, yVal, 0.0f, 0.0f) << endl;
 }
