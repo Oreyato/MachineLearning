@@ -55,7 +55,7 @@ const vector<vector<float>> retrieveCsvFileData(string filePathP) {
 * 
 *  @return Ordinate prediction
 */
-float hypothesis(const float xP, const float theta_0P = 0.0f, const float theta_1P = 0.0f) {
+float hypothesis(const float xP, const float theta_0P, const float theta_1P) {
 
 	return theta_0P + theta_1P * xP;
 }
@@ -79,7 +79,6 @@ float cost(const vector<float>& xP, const vector<float>& yP, const float theta_0
 	}
 
 	uint32_t dataSize = xP.size();
-
 	float errorSum{ 0.0f };
 
 	// Calculate error for each data point
@@ -92,23 +91,57 @@ float cost(const vector<float>& xP, const vector<float>& yP, const float theta_0
 		errorSum += squaredDiff;
 	}
 
-	float averageError = errorSum / (2.0f * dataSize);
+	float averageError = (1.0f / (2.0f * dataSize)) * errorSum;
 
 	return averageError;
 }
 
 /**
 * Using gradient descent algorithm, find the best suiting thetas for the dataset
-* 
+*
 * @param theta_0: ordinate interception
 * @param theta_1: slope
 * @param alpha: learning rate
 * @param x: inputs
 * @param y: actual outputs
-* 
+*
 * @return improved thetas
 */
-void gradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const float diffThresholdP, const vector<float>& xP, const vector<float>& yP) {
+void gradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const vector<float>& xP, const vector<float>& yP) {
+	uint32_t dataSize = xP.size();
+	float errorSum{ 0.0f };
+
+	// Find new theta_0 ===============================================
+	for (uint32_t i = 0; i < dataSize; i++)
+	{
+		const float hyp = hypothesis(xP[i], theta_0P, theta_1P);
+		const float errorDiff = hyp - yP[i];
+
+		errorSum += errorDiff;
+	}
+
+	float tempTheta_0 = (alphaP / dataSize) * errorSum;
+
+	errorSum = 0.f;
+	// ================================================================
+	// Find new theta_1 =============================================== <--- ISSUE THERE?
+	for (uint32_t i = 0; i < dataSize; i++)
+	{
+		const float hyp = hypothesis(xP[i], theta_0P, theta_1P);
+		const float errorDiff = (hyp - yP[i]) * xP[i];
+
+		errorSum += errorDiff;
+	}
+
+	float tempTheta_1 = (alphaP / dataSize) * errorSum;
+	// ================================================================ <--- ISSUE THERE?
+
+	theta_0P -= tempTheta_0;
+	theta_1P -= tempTheta_1;
+}
+
+
+void findBestThetas(float& theta_0P, float& theta_1P, const float alphaP, const float diffThresholdP, const vector<float>& xP, const vector<float>& yP) {
 	// ================================================================
 	// Handle datasets size difference ================================
 	if (xP.size() != yP.size()) {
@@ -127,39 +160,13 @@ void gradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const
 
 	while (diff >= diffThresholdP)
 	{
-		// Find new theta_0 ===============================================
-		for (uint32_t i = 0; i < dataSize; i++)
-		{
-			const float errorDiff = hypothesis(xP[i], theta_0P, theta_1P) - yP[i];
+		float initialDiff = cost(xP, yP, theta_0P, theta_1P);
 
-			errorSum += errorDiff;
-		}
-
-		float tempTheta_0 = theta_0P - (alphaP / dataSize) * errorSum;
-
-		errorSum = 0.f;
-
-		// ================================================================
-		// Find new theta_1 ===============================================
-		for (uint32_t i = 0; i < dataSize; i++)
-		{
-			const float hyp = hypothesis(xP[i], theta_0P, theta_1P);
-			const float errorDiff = (hyp - yP[i]) * xP[i];
-
-			errorSum += errorDiff;
-		}
-
-		float tempTheta_1P = theta_1P - (alphaP / dataSize) * errorSum;
-		
-
-		// ================================================================
-
-		theta_0P = tempTheta_0;
-		theta_1P = tempTheta_1P;
+		gradientDescent(theta_0P, theta_1P, alphaP, xP, yP);
 
 		float newDiff = cost(xP, yP, theta_0P, theta_1P);
 
-		diff -= newDiff; // <---
+		diff = initialDiff - newDiff; // <---
 
 		iterations++;
 
@@ -169,6 +176,7 @@ void gradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const
 		cout << "Theta_1: " << theta_1P << endl;
 	}
 
+	cout << "\nGradient descent algorithm done in " << iterations << " iterations" << endl;
 }
 
 void iteratorsTest(vector<float>& xP) {
@@ -187,20 +195,23 @@ int main(int argc, char* argv[])
 	const vector<float> xVal{ retrievedData[0] };
 	const vector<float> yVal{ retrievedData[1] };
 
-	//cout << hypothesis(5.0f, 2.0f, 2.f) << endl;
-	//cout << cost(xVal, yVal, 0.0f, 0.0f) << endl;
-
 	float theta_0{ 0.0f };
 	float theta_1{ 0.0f };
 
 	// Prediction test, before gradient descent
-	float firstHypothesis = hypothesis(xVal[0], theta_0, theta_1);
-	cout << "Before using gradient descent, we obtain " << firstHypothesis << " for x = " << xVal[0] << endl;
-	cout << "Expected value: " << yVal[0] << endl;
+	float firstHypothesis = hypothesis(xVal[5], theta_0, theta_1);
+	cout << "Before using gradient descent, we obtain " << firstHypothesis << " for x = " << xVal[5] << endl;
+	cout << "Expected value: " << yVal[5] << endl;
+	cout << "\n\n" << endl;
 
-	gradientDescent(theta_0, theta_1, 0.0001f, 0.00001f, xVal, yVal);
+	findBestThetas(theta_0, theta_1, 0.0001f, 0.00001f, xVal, yVal);
 
+	cout << "\n" << endl;
 	// Prediction test, after gradient descent
-	float secondHypothesis = hypothesis(xVal[0], theta_0, theta_1);
-	cout << "After using gradient descent, we obtain " << secondHypothesis << " for x = " << xVal[0] << endl;
+	float secondHypothesis = hypothesis(xVal[5], theta_0, theta_1);
+	cout << "After using gradient descent, we obtain " << secondHypothesis << " for x = " << xVal[5] << endl;
+	cout << "Expected value: " << yVal[5] << endl;
+
+	cout << "\nFinal theta_0: " << theta_0 << endl;
+	cout << "Final theta_1: " << theta_1 << endl;
 }
