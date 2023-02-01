@@ -104,7 +104,7 @@ int main(void)
 //----------------------------------------------------------------------------------
 
 void Init() {
-    const vector<vector<float>> retrievedData = retrieveCsvFileData("Resources/test.csv");
+    const vector<vector<float>> retrievedData = retrieveCsvFileData("Resources/train.csv");
 
     //const vector<float> xVal{ retrievedData[0] };
     //const vector<float> yVal{ retrievedData[1] };
