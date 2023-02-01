@@ -1,5 +1,8 @@
 #include "raylib.h"
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
 #include <iostream>
 #include <vector>
 #include <math.h>
@@ -58,8 +61,28 @@ static bool showAllCurves = true;
 
 static float thetasCurvesThickness = 2.0f;
 static Color thetasCurvesColor = RED;
+
 //^ Thetas curves ================================================
 
+//v EDUCATIONAL CONTENT 
+static bool showEducationalContent = true;
+
+static float eduThetasCurveThickness = 4.0f;
+static Color eduThetasCurveColor = GREEN;
+
+//v Sliders ======================================================
+static float theta0Slider = 0.0f;
+static float theta1Slider = 0.0f;
+
+static float minT0SliderValue = 0.0f;
+static float maxT0SliderValue = 2.0f;
+
+static float minT1SliderValue = -0.25f;
+static float maxT1SliderValue = 1.5f;
+
+//^ Sliders ======================================================
+//^ EDUCATIONAL CONTENT 
+ 
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
 //----------------------------------------------------------------------------------
@@ -505,9 +528,45 @@ static void DrawUI(void) {
     else {
         DrawText("\"C\": show all thetas curves", 50.f, screenHeight - 25.f, 20.0f, BLACK);
     }
+    if (!showEducationalContent)
+    {
+        DrawText("\"E\": show educational content", screenWidth / 2.0f, screenHeight - 25.f, 20.0f, BLACK);
+    }
+    else {
+        DrawText("\"E\": hide educational content", screenWidth / 2.0f, screenHeight - 25.f, 20.0f, BLACK);
+    }
 
     //^ Inputs text ==================================================
     //^ ==============================================================
+    if (showEducationalContent)
+    {
+        //v ==============================================================
+        //v Sliders ======================================================
+        float slidersWidth = 100.0f;
+        float slidersXPos = screenWidth - slidersWidth - 25.0f;
+        float slidersYpos = screenHeight - screenHeight * 0.2f;
+
+        theta0Slider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 30.0f, slidersWidth, 20 }, "Theta0", NULL, theta0Slider, minT0SliderValue, maxT0SliderValue);
+        theta1Slider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos, slidersWidth, 20 }, "Theta1", NULL, theta1Slider, minT1SliderValue, maxT1SliderValue);
+
+        // Draw thetas values
+        DrawText(TextFormat("%05f", theta0Slider), slidersXPos + 20.0f, slidersYpos - 27.0f, 15.0f, DARKBLUE);
+        DrawText(TextFormat("%05f", theta1Slider), slidersXPos + 20.0f, slidersYpos + 3.0f, 15.0f, DARKBLUE);
+
+        // Draw test curve
+        const float yHyp = Hypothesis(xMaxValue, theta0Slider, theta1Slider);
+        const float yHypNorm = yHyp * graphHeight / yMaxValue;
+
+        DrawLineEx(
+            Vector2{ graphOrigin.x, graphOrigin.y - theta0Slider },
+            Vector2{ graphOrigin.x + graphWidth, graphOrigin.y - yHypNorm },
+            eduThetasCurveThickness,
+            eduThetasCurveColor
+        );
+
+        //^ Sliders ======================================================
+        //^ ============================================================== 
+    }
 }
 
 void Inputs(void)
@@ -515,5 +574,9 @@ void Inputs(void)
     // Show latest curve only
     if (IsKeyPressed(KEY_C)) {
         showAllCurves = !showAllCurves;
+    }
+    // Show educational content
+    if (IsKeyPressed(KEY_E)) {
+        showEducationalContent = !showEducationalContent;
     }
 }
