@@ -39,16 +39,16 @@ static Datas datas;
 static float graphOffset = 40.0f;
 static float xPadding = 10.0f;
 static float yPadding = 10.0f;
-static Color subLinesColor = Color{ 225, 225, 225, 255 };
-static Color thiSubLinesColor = Color{ 150, 150, 150, 255 };
+static Color subLinesColor = Color{ 200, 200, 200, 255 };
+static Color thiSubLinesColor = Color{ 125, 125, 125, 255 };
 static int8_t thickerLinesFrequency = 5;
 static float marksTextSize = 15.0f;
 
 static float axisThickness = 4.0f;
 
 static float pointRadius = 2.0f;
-static float xMaxValue = 110.0f;
-static float yMaxValue = 110.0f;
+static float xMaxValue = 105.0f;
+static float yMaxValue = 115.0f;
 
 //^ Graph values =================================================
 
@@ -338,39 +338,50 @@ static void Draw(void) {
 
 }
 
-static void DrawUI(void) {
+static void DrawGraph(float graphWidth, float graphHeight) {
     Vector2 graphOrigin{ graphOffset, screenHeight - graphOffset };
-    float graphWidth = screenWidth - 2 * graphOffset;
-    float graphHeight = screenHeight - 2 * graphOffset;
 
     //v ==============================================================
     //v Draw graph =================================================== 
     // Draw grid ============================
     // Draw absissa marks
-    uint8_t absMarksNb = floor(graphWidth / xPadding);
-    for (uint8_t i = 1; i < absMarksNb; i++)
+    uint8_t absMarksNb = floor(xMaxValue / xPadding);
+    for (uint8_t i = 1; i < absMarksNb + 1; i++)
     {
-        Vector2 startingPos{ graphOffset + xPadding * i, graphOrigin.y };
+        float normalizedXPadding = (xPadding * i) * graphWidth / xMaxValue;
+
+        Vector2 startingPos{ graphOffset + normalizedXPadding, graphOrigin.y };
         Vector2 endingPos{ startingPos.x, graphOffset };
 
         if (i % thickerLinesFrequency != 0) {
             DrawLineEx(startingPos, endingPos, axisThickness / 2.0f, subLinesColor);
+
+            int currentX = floor(xPadding * i);
+            DrawText(TextFormat("%i", currentX), startingPos.x - marksTextSize * 0.5f, startingPos.y + graphOffset / 4.0f, marksTextSize * 0.5f, subLinesColor);
         }
         else
         {
             DrawLineEx(startingPos, endingPos, axisThickness / 1.5f, thiSubLinesColor);
+
+            int currentX = floor(xPadding * i);
+            DrawText(TextFormat("%i", currentX), startingPos.x - marksTextSize * 0.5f, startingPos.y + graphOffset / 4.0f, marksTextSize, thiSubLinesColor);
         }
-        
+
     }
     // Draw ordonate marks
-    uint8_t ordMarksNb = floor(graphHeight / yPadding);
-    for (uint8_t i = 1; i < ordMarksNb; i++)
+    uint8_t ordMarksNb = floor(yMaxValue / yPadding);
+    for (uint8_t i = 1; i < ordMarksNb + 1; i++)
     {
-        Vector2 startingPos{ graphOrigin.x, screenHeight - graphOffset - yPadding*i };
+        float normalizedYPadding = (yPadding * i) * graphHeight / yMaxValue;
+
+        Vector2 startingPos{ graphOrigin.x, screenHeight - graphOffset - normalizedYPadding };
         Vector2 endingPos{ screenWidth - graphOffset , startingPos.y };
 
         if (i % thickerLinesFrequency != 0) {
             DrawLineEx(startingPos, endingPos, axisThickness / 2.0f, subLinesColor);
+
+            int currentY = floor(yPadding * i);
+            DrawText(TextFormat("%i", currentY), startingPos.x - graphOffset + 5.0f, startingPos.y - 0.5f * marksTextSize * 0.5f, marksTextSize * 0.5f, subLinesColor);
         }
         else
         {
@@ -395,6 +406,14 @@ static void DrawUI(void) {
 
     //^ Draw graph ===================================================
     //^ ==============================================================
+}
+
+static void DrawUI(void) {
+    float graphWidth = screenWidth - 2 * graphOffset;
+    float graphHeight = screenHeight - 2 * graphOffset;
+
+    DrawGraph(graphWidth, graphHeight);
+
     //v ==============================================================
     //v Draw data points =============================================
 
