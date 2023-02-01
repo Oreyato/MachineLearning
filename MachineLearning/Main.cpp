@@ -195,28 +195,28 @@ int main(int argc, char* argv[])
 	//const vector<float> xVal{ retrievedData[0] };
 	//const vector<float> yVal{ retrievedData[1] };
 
-	const vector<float> xVal{ 0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f };
-	const vector<float> yVal{ 25.0f, 50.0f, 75.0f, 100.0f, 125.0f, 150.0f };
+	const vector<float> xVal{ 1.0f, 2.0f, 3.0f, 4.0f, 5.0f };
+	const vector<float> yVal{ 25.0f, 50.0f, 75.0f, 100.0f, 125.0f };
 
 	float theta_0{ 0.0f };
 	float theta_1{ 0.0f };
 
-	// Final theta_0: 23.9679
-	// Final theta_1 : 25.2909
+	float xTest = xVal[2];
+	float yExpected = yVal[2];
 
 	// Prediction test, before gradient descent
-	float firstHypothesis = hypothesis(xVal[5], theta_0, theta_1);
-	cout << "Before using gradient descent, we obtain " << firstHypothesis << " for x = " << xVal[5] << endl;
-	cout << "Expected value: " << yVal[5] << endl;
+	float firstHypothesis = hypothesis(xTest, theta_0, theta_1);
+	cout << "Before using gradient descent, we obtain " << firstHypothesis << " for x = " << xTest << endl;
+	cout << "Expected value: " << yExpected << endl;
 	cout << "\n\n" << endl;
 
 	findBestThetas(theta_0, theta_1, 0.001f, 0.0001f, xVal, yVal);
 
 	cout << "\n" << endl;
 	// Prediction test, after gradient descent
-	float secondHypothesis = hypothesis(xVal[5], theta_0, theta_1);
-	cout << "After using gradient descent, we obtain " << secondHypothesis << " for x = " << xVal[5] << endl;
-	cout << "Expected value: " << yVal[5] << endl;
+	float secondHypothesis = hypothesis(xTest, theta_0, theta_1);
+	cout << "After using gradient descent, we obtain " << secondHypothesis << " for x = " << xTest << endl;
+	cout << "Expected value: " << yExpected << endl;
 
 	cout << "\nFinal theta_0: " << theta_0 << endl;
 	cout << "Final theta_1: " << theta_1 << endl;
