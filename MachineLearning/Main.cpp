@@ -124,7 +124,7 @@ void gradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const
 
 	errorSum = 0.f;
 	// ================================================================
-	// Find new theta_1 =============================================== <--- ISSUE THERE?
+	// Find new theta_1 ===============================================
 	for (uint32_t i = 0; i < dataSize; i++)
 	{
 		const float hyp = hypothesis(xP[i], theta_0P, theta_1P);
@@ -134,7 +134,7 @@ void gradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const
 	}
 
 	float tempTheta_1 = (alphaP / dataSize) * errorSum;
-	// ================================================================ <--- ISSUE THERE?
+	// ================================================================
 
 	theta_0P -= tempTheta_0;
 	theta_1P -= tempTheta_1;
@@ -166,7 +166,7 @@ void findBestThetas(float& theta_0P, float& theta_1P, const float alphaP, const 
 
 		float newDiff = cost(xP, yP, theta_0P, theta_1P);
 
-		diff = initialDiff - newDiff; // <---
+		diff = initialDiff - newDiff;
 
 		iterations++;
 
