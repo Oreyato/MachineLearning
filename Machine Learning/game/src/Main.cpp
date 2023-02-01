@@ -33,10 +33,12 @@ static float theta_0 = 0.0f;
 static float theta_1 = 0.0f;
 
 static Thetas thetas;
+static vector<Thetas> thetasSets;
+
 static Datas datas;
 
 //v Graph values =================================================
-static float graphOffset = 40.0f;
+static float graphOffset = 60.0f;
 static float xPadding = 10.0f;
 static float yPadding = 10.0f;
 static Color subLinesColor = Color{ 200, 200, 200, 255 };
@@ -51,6 +53,10 @@ static float xMaxValue = 105.0f;
 static float yMaxValue = 115.0f;
 
 //^ Graph values =================================================
+//v Thetas curves ================================================
+static float thetasCurvesThickness = 2.0f;
+static Color thetasCurvesColor = RED;
+//^ Thetas curves ================================================
 
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
@@ -63,11 +69,11 @@ static void Update(void);
 static void DrawUI(void);
 static void Draw(void);
 
-static const vector<vector<float>> retrieveCsvFileData(string filePathP);
-static float hypothesis(const float xP, const float theta_0P, const float theta_1P);
-static float cost(const vector<float>& xP, const vector<float>& yP, const float theta_0P, const float theta_1P);
-static void gradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const vector<float>& xP, const vector<float>& yP);
-static void findBestThetas(float& theta_0P, float& theta_1P, const float alphaP, const float diffThresholdP, const vector<float>& xP, const vector<float>& yP);
+static const vector<vector<float>> RetrieveCsvFileData(string filePathP);
+static float Hypothesis(const float xP, const float theta_0P, const float theta_1P);
+static float Cost(const vector<float>& xP, const vector<float>& yP, const float theta_0P, const float theta_1P);
+static void GradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const vector<float>& xP, const vector<float>& yP);
+static void FindBestThetas(float& theta_0P, float& theta_1P, const float alphaP, const float diffThresholdP, const vector<float>& xP, const vector<float>& yP);
 
 //----------------------------------------------------------------------------------
 // Main entry point
@@ -105,7 +111,7 @@ int main(void)
 
 void Init() {
     //v Retrieve training values =====================================
-    const vector<vector<float>> retrievedData = retrieveCsvFileData("Resources/train.csv");
+    const vector<vector<float>> retrievedData = RetrieveCsvFileData("Resources/train.csv");
 
     const vector<float> xVal{ retrievedData[0] };
     const vector<float> yVal{ retrievedData[1] };
@@ -127,19 +133,19 @@ void Init() {
     float yExpected = yVal[2];
 
     //v Prediction test, before gradient descent =====================
-    float firstHypothesis = hypothesis(xTest, theta_0, theta_1);
+    float firstHypothesis = Hypothesis(xTest, theta_0, theta_1);
     cout << "Before using gradient descent, we obtain " << firstHypothesis << " for x = " << xTest << endl;
     cout << "Expected value: " << yExpected << endl;
     cout << "\n\n" << endl;
     //^ Prediction test, before gradient descent =====================
 
     // Train algorithm
-    findBestThetas(theta_0, theta_1, 0.0001f, 0.00001f, xVal, yVal);
+    FindBestThetas(theta_0, theta_1, 0.0001f, 0.00001f, xVal, yVal);
 
     cout << "\n" << endl;
 
     //v Prediction test, after gradient descent ======================
-    float secondHypothesis = hypothesis(xTest, theta_0, theta_1);
+    float secondHypothesis = Hypothesis(xTest, theta_0, theta_1);
     cout << "After using gradient descent, we obtain " << secondHypothesis << " for x = " << xTest << endl;
     cout << "Expected value: " << yExpected << endl;
 
@@ -153,7 +159,7 @@ void Init() {
 *
 * @param filePath: relative or absolute path to the file location
 */
-const vector<vector<float>> retrieveCsvFileData(string filePathP) {
+const vector<vector<float>> RetrieveCsvFileData(string filePathP) {
     ifstream file{ filePathP, ifstream::in };
 
     string line, val;
@@ -196,7 +202,7 @@ const vector<vector<float>> retrieveCsvFileData(string filePathP) {
 *
 *  @return Ordinate prediction
 */
-float hypothesis(const float xP, const float theta_0P, const float theta_1P) {
+float Hypothesis(const float xP, const float theta_0P, const float theta_1P) {
 
     return theta_0P + theta_1P * xP;
 }
@@ -211,7 +217,7 @@ float hypothesis(const float xP, const float theta_0P, const float theta_1P) {
 *
 * @return Total error count
 */
-float cost(const vector<float>& xP, const vector<float>& yP, const float theta_0P, const float theta_1P) {
+float Cost(const vector<float>& xP, const vector<float>& yP, const float theta_0P, const float theta_1P) {
     // Handle datasets size difference
     if (xP.size() != yP.size()) {
         cout << "x and y should have the same size" << endl;
@@ -225,7 +231,7 @@ float cost(const vector<float>& xP, const vector<float>& yP, const float theta_0
     // Calculate error for each data point
     for (uint32_t i = 0; i < dataSize; i++)
     {
-        float predictedValue = hypothesis(xP[i], theta_0P, theta_1P);
+        float predictedValue = Hypothesis(xP[i], theta_0P, theta_1P);
 
         float squaredDiff = pow(predictedValue - yP[i], 2.0f);
 
@@ -248,14 +254,14 @@ float cost(const vector<float>& xP, const vector<float>& yP, const float theta_0
 *
 * @return improved thetas
 */
-void gradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const vector<float>& xP, const vector<float>& yP) {
+void GradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const vector<float>& xP, const vector<float>& yP) {
     uint32_t dataSize = xP.size();
     float errorSum{ 0.0f };
 
     // Find new theta_0 ===============================================
     for (uint32_t i = 0; i < dataSize; i++)
     {
-        const float hyp = hypothesis(xP[i], theta_0P, theta_1P);
+        const float hyp = Hypothesis(xP[i], theta_0P, theta_1P);
         const float errorDiff = hyp - yP[i];
 
         errorSum += errorDiff;
@@ -268,7 +274,7 @@ void gradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const
     // Find new theta_1 ===============================================
     for (uint32_t i = 0; i < dataSize; i++)
     {
-        const float hyp = hypothesis(xP[i], theta_0P, theta_1P);
+        const float hyp = Hypothesis(xP[i], theta_0P, theta_1P);
         const float errorDiff = (hyp - yP[i]) * xP[i];
 
         errorSum += errorDiff;
@@ -281,7 +287,7 @@ void gradientDescent(float& theta_0P, float& theta_1P, const float alphaP, const
     theta_1P -= tempTheta_1;
 }
 
-void findBestThetas(float& theta_0P, float& theta_1P, const float alphaP, const float diffThresholdP, const vector<float>& xP, const vector<float>& yP) {
+void FindBestThetas(float& theta_0P, float& theta_1P, const float alphaP, const float diffThresholdP, const vector<float>& xP, const vector<float>& yP) {
     // ================================================================
     // Handle datasets size difference ================================
     if (xP.size() != yP.size()) {
@@ -295,20 +301,22 @@ void findBestThetas(float& theta_0P, float& theta_1P, const float alphaP, const 
     float errorSum{ 0.0f };
     uint32_t dataSize = xP.size();
 
-    float diff = cost(xP, yP, theta_0P, theta_1P);
+    float diff = Cost(xP, yP, theta_0P, theta_1P);
     cout << "Initial cost: " << diff << endl;
 
     while (diff >= diffThresholdP)
     {
-        float initialDiff = cost(xP, yP, theta_0P, theta_1P);
+        float initialDiff = Cost(xP, yP, theta_0P, theta_1P);
 
-        gradientDescent(theta_0P, theta_1P, alphaP, xP, yP);
+        GradientDescent(theta_0P, theta_1P, alphaP, xP, yP);
 
-        float newDiff = cost(xP, yP, theta_0P, theta_1P);
+        float newDiff = Cost(xP, yP, theta_0P, theta_1P);
 
         diff = initialDiff - newDiff;
 
         iterations++;
+
+        thetasSets.emplace_back(Thetas{theta_0P, theta_1P});
 
         cout << "Iteration #" << iterations << " =======" << endl;
         cout << "Difference: " << diff << endl;
@@ -346,11 +354,7 @@ static void Draw(void) {
 
 }
 
-static void DrawGraph(float graphWidth, float graphHeight) {
-    Vector2 graphOrigin{ graphOffset, screenHeight - graphOffset };
-
-    //v ==============================================================
-    //v Draw graph =================================================== 
+static void DrawGraph(float graphWidth, float graphHeight, Vector2 graphOrigin) {
     // Draw grid ============================
     // Draw absissa marks
     uint8_t absMarksNb = floor(xMaxValue / xPadding);
@@ -365,7 +369,7 @@ static void DrawGraph(float graphWidth, float graphHeight) {
             DrawLineEx(startingPos, endingPos, axisThickness / 2.0f, subLinesColor);
 
             int currentX = floor(xPadding * i);
-            DrawText(TextFormat("%i", currentX), startingPos.x - marksTextSize * 0.5f, startingPos.y + graphOffset / 4.0f, marksTextSize * 0.5f, subLinesColor);
+            DrawText(TextFormat("%i", currentX), startingPos.x - marksTextSize * 0.25f, startingPos.y + graphOffset / 4.0f, marksTextSize * 0.5f, subLinesColor);
         }
         else
         {
@@ -389,14 +393,14 @@ static void DrawGraph(float graphWidth, float graphHeight) {
             DrawLineEx(startingPos, endingPos, axisThickness / 2.0f, subLinesColor);
 
             int currentY = floor(yPadding * i);
-            DrawText(TextFormat("%i", currentY), startingPos.x - graphOffset + 5.0f, startingPos.y - 0.5f * marksTextSize * 0.5f, marksTextSize * 0.5f, subLinesColor);
+            DrawText(TextFormat("%i", currentY), startingPos.x - marksTextSize * 2.0f, startingPos.y - 0.5f * marksTextSize * 0.5f, marksTextSize * 0.5f, subLinesColor);
         }
         else
         {
             DrawLineEx(startingPos, endingPos, axisThickness / 1.5f, thiSubLinesColor);
 
             int currentY = floor(yPadding * i);
-            DrawText(TextFormat("%i", currentY), startingPos.x - graphOffset + 5.0f, startingPos.y - 0.5f * marksTextSize, marksTextSize, thiSubLinesColor);
+            DrawText(TextFormat("%i", currentY), startingPos.x - marksTextSize * 2.0f, startingPos.y - 0.5f * marksTextSize, marksTextSize, thiSubLinesColor);
         }
     }
 
@@ -411,16 +415,15 @@ static void DrawGraph(float graphWidth, float graphHeight) {
     Vector2 ordEndPos{ ordStartPos.x, graphOffset };
 
     DrawLineEx(ordStartPos, ordEndPos, axisThickness, BLACK);
-
-    //^ Draw graph ===================================================
-    //^ ==============================================================
 }
 
 static void DrawUI(void) {
     float graphWidth = screenWidth - 2 * graphOffset;
     float graphHeight = screenHeight - 2 * graphOffset;
 
-    DrawGraph(graphWidth, graphHeight);
+    Vector2 graphOrigin{ graphOffset, screenHeight - graphOffset };
+
+    DrawGraph(graphWidth, graphHeight, graphOrigin);
 
     //v ==============================================================
     //v Draw data points =============================================
@@ -442,8 +445,30 @@ static void DrawUI(void) {
         DrawCircleV(Vector2{ normX, normY }, pointRadius, BLUE);
     }
 
-
     //^ Draw data points =============================================
     //^ ==============================================================
+    //v ============================================================== 
+    //v Draw thetas curves ===========================================
+    for (uint32_t i = 0; i < thetasSets.size(); i++)
+    {
+        const float yHyp = Hypothesis(xMaxValue, thetasSets[i].zero, thetasSets[i].one);
+        const float yHypNorm = yHyp * graphHeight / yMaxValue;
 
+        DrawLineEx(
+            Vector2{ graphOrigin.x, graphOrigin.y - thetasSets[i].zero },
+            Vector2{ graphOrigin.x + graphWidth, graphOrigin.y - yHypNorm },
+            thetasCurvesThickness,
+            thetasCurvesColor
+        );
+    }
+
+    //^ Draw thetas curves ===========================================
+    //^ ==============================================================
+    float finalTextSize = 20.0f;
+    uint32_t thetasSetsSize = thetasSets.size();
+    Thetas finalThetas{ thetasSets[thetasSetsSize - 1].zero, thetasSets[thetasSetsSize - 1].one };
+
+    DrawText("Final thetas:", 50.f, 5.f, finalTextSize, BLACK);
+    DrawText(TextFormat("Theta0: %05f", finalThetas.zero), 80.f, 25.0f, finalTextSize - 2.5f, RED);
+    DrawText(TextFormat("Theta1: %05f", finalThetas.one), 80.f, 40.0f, finalTextSize - 2.5f, RED);
 }
