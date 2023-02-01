@@ -192,11 +192,17 @@ int main(int argc, char* argv[])
 { 
 	const vector<vector<float>> retrievedData = retrieveCsvFileData("Resources/test.csv");
 
-	const vector<float> xVal{ retrievedData[0] };
-	const vector<float> yVal{ retrievedData[1] };
+	//const vector<float> xVal{ retrievedData[0] };
+	//const vector<float> yVal{ retrievedData[1] };
+
+	const vector<float> xVal{ 0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f };
+	const vector<float> yVal{ 25.0f, 50.0f, 75.0f, 100.0f, 125.0f, 150.0f };
 
 	float theta_0{ 0.0f };
 	float theta_1{ 0.0f };
+
+	// Final theta_0: 23.9679
+	// Final theta_1 : 25.2909
 
 	// Prediction test, before gradient descent
 	float firstHypothesis = hypothesis(xVal[5], theta_0, theta_1);
@@ -204,7 +210,7 @@ int main(int argc, char* argv[])
 	cout << "Expected value: " << yVal[5] << endl;
 	cout << "\n\n" << endl;
 
-	findBestThetas(theta_0, theta_1, 0.0001f, 0.00001f, xVal, yVal);
+	findBestThetas(theta_0, theta_1, 0.001f, 0.0001f, xVal, yVal);
 
 	cout << "\n" << endl;
 	// Prediction test, after gradient descent
