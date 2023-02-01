@@ -104,17 +104,21 @@ int main(void)
 //----------------------------------------------------------------------------------
 
 void Init() {
+    //v Retrieve training values =====================================
     const vector<vector<float>> retrievedData = retrieveCsvFileData("Resources/train.csv");
 
-    //const vector<float> xVal{ retrievedData[0] };
-    //const vector<float> yVal{ retrievedData[1] };
+    const vector<float> xVal{ retrievedData[0] };
+    const vector<float> yVal{ retrievedData[1] };
 
     datas.x = retrievedData[0];
     datas.y = retrievedData[1];
     datas.size = datas.x.size();
 
-    const vector<float> xVal{ 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f };
-    const vector<float> yVal{ 0.25f, 0.50f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 2.25f, 2.50f };
+    //^ Retrieve training values =====================================
+    //v Testing purpose ==============================================
+    /*const vector<float> xVal{ 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f };
+    const vector<float> yVal{ 0.25f, 0.50f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 2.25f, 2.50f };*/
+    //^ Testing purpose ==============================================
 
     float theta_0{ 0.0f };
     float theta_1{ 0.0f };
@@ -122,22 +126,26 @@ void Init() {
     float xTest = xVal[2];
     float yExpected = yVal[2];
 
-    // Prediction test, before gradient descent
+    //v Prediction test, before gradient descent =====================
     float firstHypothesis = hypothesis(xTest, theta_0, theta_1);
     cout << "Before using gradient descent, we obtain " << firstHypothesis << " for x = " << xTest << endl;
     cout << "Expected value: " << yExpected << endl;
     cout << "\n\n" << endl;
+    //^ Prediction test, before gradient descent =====================
 
-    findBestThetas(theta_0, theta_1, 0.001f, 0.0001f, xVal, yVal);
+    // Train algorithm
+    findBestThetas(theta_0, theta_1, 0.0001f, 0.00001f, xVal, yVal);
 
     cout << "\n" << endl;
-    // Prediction test, after gradient descent
+
+    //v Prediction test, after gradient descent ======================
     float secondHypothesis = hypothesis(xTest, theta_0, theta_1);
     cout << "After using gradient descent, we obtain " << secondHypothesis << " for x = " << xTest << endl;
     cout << "Expected value: " << yExpected << endl;
 
     cout << "\nFinal theta_0: " << theta_0 << endl;
     cout << "Final theta_1: " << theta_1 << endl;
+    //^ Prediction test, after gradient descent ======================
 }
 
 /*
@@ -437,4 +445,5 @@ static void DrawUI(void) {
 
     //^ Draw data points =============================================
     //^ ==============================================================
+
 }
