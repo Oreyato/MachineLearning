@@ -54,6 +54,8 @@ static float yMaxValue = 115.0f;
 
 //^ Graph values =================================================
 //v Thetas curves ================================================
+static bool showAllCurves = true;
+
 static float thetasCurvesThickness = 2.0f;
 static Color thetasCurvesColor = RED;
 //^ Thetas curves ================================================
@@ -63,6 +65,8 @@ static Color thetasCurvesColor = RED;
 //----------------------------------------------------------------------------------
 
 static void Init(void);
+
+static void Inputs(void);
 
 static void UpdateDrawFrame(void);          // Update and draw one frame
 static void Update(void);
@@ -95,6 +99,7 @@ int main(void)
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         UpdateDrawFrame();
+        Inputs();
     }
 
     // De-Initialization
@@ -449,13 +454,27 @@ static void DrawUI(void) {
     //^ ==============================================================
     //v ============================================================== 
     //v Draw thetas curves ===========================================
-    for (uint32_t i = 0; i < thetasSets.size(); i++)
+    if (showAllCurves)
     {
-        const float yHyp = Hypothesis(xMaxValue, thetasSets[i].zero, thetasSets[i].one);
+        for (uint32_t i = 0; i < thetasSets.size(); i++)
+        {
+            const float yHyp = Hypothesis(xMaxValue, thetasSets[i].zero, thetasSets[i].one);
+            const float yHypNorm = yHyp * graphHeight / yMaxValue;
+
+            DrawLineEx(
+                Vector2{ graphOrigin.x, graphOrigin.y - thetasSets[i].zero },
+                Vector2{ graphOrigin.x + graphWidth, graphOrigin.y - yHypNorm },
+                thetasCurvesThickness,
+                thetasCurvesColor
+            );
+        }
+    }
+    else {
+        const float yHyp = Hypothesis(xMaxValue, thetasSets[thetasSets.size() - 1].zero, thetasSets[thetasSets.size() - 1].one);
         const float yHypNorm = yHyp * graphHeight / yMaxValue;
 
         DrawLineEx(
-            Vector2{ graphOrigin.x, graphOrigin.y - thetasSets[i].zero },
+            Vector2{ graphOrigin.x, graphOrigin.y - thetasSets[thetasSets.size() - 1].zero },
             Vector2{ graphOrigin.x + graphWidth, graphOrigin.y - yHypNorm },
             thetasCurvesThickness,
             thetasCurvesColor
@@ -464,6 +483,9 @@ static void DrawUI(void) {
 
     //^ Draw thetas curves ===========================================
     //^ ==============================================================
+    //v ==============================================================
+    //v Thetas text ==================================================
+
     float finalTextSize = 20.0f;
     uint32_t thetasSetsSize = thetasSets.size();
     Thetas finalThetas{ thetasSets[thetasSetsSize - 1].zero, thetasSets[thetasSetsSize - 1].one };
@@ -471,4 +493,27 @@ static void DrawUI(void) {
     DrawText("Final thetas:", 50.f, 5.f, finalTextSize, BLACK);
     DrawText(TextFormat("Theta0: %05f", finalThetas.zero), 80.f, 25.0f, finalTextSize - 2.5f, RED);
     DrawText(TextFormat("Theta1: %05f", finalThetas.one), 80.f, 40.0f, finalTextSize - 2.5f, RED);
+
+    //^ Thetas text ==================================================
+    //^ ==============================================================
+    //v ==============================================================
+    //v Inputs text ==================================================
+    if (showAllCurves)
+    {
+        DrawText("\"C\": only show last thetas curve", 50.f, screenHeight - 25.f, 20.0f, BLACK);
+    }
+    else {
+        DrawText("\"C\": show all thetas curves", 50.f, screenHeight - 25.f, 20.0f, BLACK);
+    }
+
+    //^ Inputs text ==================================================
+    //^ ==============================================================
+}
+
+void Inputs(void)
+{
+    // Show latest curve only
+    if (IsKeyPressed(KEY_C)) {
+        showAllCurves = !showAllCurves;
+    }
 }
