@@ -195,8 +195,8 @@ int main(int argc, char* argv[])
 	//const vector<float> xVal{ retrievedData[0] };
 	//const vector<float> yVal{ retrievedData[1] };
 
-	const vector<float> xVal{ 1.0f, 2.0f, 3.0f, 4.0f, 5.0f };
-	const vector<float> yVal{ 25.0f, 50.0f, 75.0f, 100.0f, 125.0f };
+	const vector<float> xVal{ 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f };
+	const vector<float> yVal{ 0.25f, 0.50f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 2.25f, 2.50f };
 
 	float theta_0{ 0.0f };
 	float theta_1{ 0.0f };
