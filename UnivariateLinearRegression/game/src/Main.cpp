@@ -26,7 +26,7 @@ struct Datas
 //----------------------------------------------------------------------------------
 static const int screenWidth = 1000;
 static const int screenHeight = 500;
-static const char* windowName = "raylib basic game template";
+static const char* windowName = "Univariate Linear Regression";
 
 static float theta_0 = 0.0f;
 static float theta_1 = 0.0f;
