@@ -35,7 +35,7 @@ static Color graphBGColor = RAYWHITE;
 static float graphOffset = 60.0f;
 static float xPadding = 10.0f;
 static float yPadding = 10.0f;
-static float xMaxValue = 200.0f;
+static float xMaxValue = 110.0f;
 static float yMaxValue = 115.0f;
 static float xMinValue = 0.0f;
 static float yMinValue = 0.0f;
@@ -64,15 +64,30 @@ static bool showEducationalContent = true;
 static float eduThetasCurveThickness = 4.0f;
 static Color eduThetasCurveColor = GREEN;
 
+static int inputXValue = 0;
+static char inputXText = '0';
+static bool XValueBoxEditMode = false;
+
 //v Sliders =============================
 static float theta0Slider = 0.0f;
 static float theta1Slider = 0.0f;
+
+static float alphaSlider = 0.0001f;
+static float thresholdSlider = 0.00001f;
+
+// ===
 
 static float minT0SliderValue = 0.0f;
 static float maxT0SliderValue = 2.0f;
 
 static float minT1SliderValue = -0.25f;
 static float maxT1SliderValue = 1.5f;
+
+static float minAlphaSliderValue = 0.00001f;
+static float maxAlphaSliderValue = 0.001f;
+
+static float minThresholdSliderValue = 0.000001f;
+static float maxThresholdSliderValue = 0.0001f;
 
 //^ Sliders =============================
 //^ EDUCATIONAL CONTENT ========================================== 
@@ -309,9 +324,14 @@ void DrawEduContent(float graphWidth, float graphHeight, Vector2 graphOrigin) {
     theta0Slider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 30.0f, slidersWidth, 20 }, "Theta0", NULL, theta0Slider, minT0SliderValue, maxT0SliderValue);
     theta1Slider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos, slidersWidth, 20 }, "Theta1", NULL, theta1Slider, minT1SliderValue, maxT1SliderValue);
 
-    // Draw thetas values
+    thresholdSlider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 90.0f, slidersWidth, 20 }, "Threshold", NULL, thresholdSlider, minAlphaSliderValue, maxAlphaSliderValue);
+    alphaSlider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 120.0f, slidersWidth, 20 }, "Alpha", NULL, alphaSlider, minThresholdSliderValue, maxThresholdSliderValue);
+
+    // Draw values
     DrawText(TextFormat("%05f", theta0Slider), slidersXPos + 20.0f, slidersYpos - 27.0f, 15.0f, DARKBLUE);
     DrawText(TextFormat("%05f", theta1Slider), slidersXPos + 20.0f, slidersYpos + 3.0f, 15.0f, DARKBLUE);
+    DrawText(TextFormat("%05f", thresholdSlider), slidersXPos + 20.0f, slidersYpos - 87.0f, 15.0f, DARKBLUE);
+    DrawText(TextFormat("%05f", alphaSlider), slidersXPos + 20.0f, slidersYpos - 117.0f, 15.0f, DARKBLUE);
 
     // Draw test curve
     const float yHyp =  ULRegression::Hypothesis(xMaxValue, theta0Slider, theta1Slider);
@@ -350,7 +370,8 @@ void DrawUI(void) {
     //DrawRectangle(0, 0, screenWidth, graphOffset, graphBGColor);
 
     //v ==============================================================
-    //v Thetas text ==================================================
+    //v Texts ========================================================
+    //v Thetas text =================
 
     float finalTextSize = 20.0f;
     uint32_t thetasSetsSize = thetasSets.size();
@@ -360,10 +381,7 @@ void DrawUI(void) {
     DrawText(TextFormat("Theta0: %05f", finalThetas.zero), 80.f, 25.0f, finalTextSize - 2.5f, RED);
     DrawText(TextFormat("Theta1: %05f", finalThetas.one), 80.f, 40.0f, finalTextSize - 2.5f, RED);
 
-    //^ Thetas text ==================================================
-    //^ ==============================================================
-    //v ==============================================================
-    //v Inputs text ==================================================
+    //v Inputs text =================
     if (showAllCurves)
     {
         DrawText("\"C\": only show last thetas curve", 50.f, screenHeight - 25.f, 20.0f, BLACK);
@@ -371,15 +389,44 @@ void DrawUI(void) {
     else {
         DrawText("\"C\": show all thetas curves", 50.f, screenHeight - 25.f, 20.0f, BLACK);
     }
-    if (!showEducationalContent)
+    if (showEducationalContent)
     {
-        DrawText("\"E\": show educational content", screenWidth / 2.0f, screenHeight - 25.f, 20.0f, BLACK);
-    }
-    else {
         DrawText("\"E\": hide educational content", screenWidth / 2.0f, screenHeight - 25.f, 20.0f, BLACK);
     }
+    else {
+        DrawText("\"E\": show educational content", screenWidth / 2.0f, screenHeight - 25.f, 20.0f, BLACK);
+    }
 
-    //^ Inputs text ==================================================
+    //v Custom X Y value ============ 
+    if (showEducationalContent) {
+        DrawText("x value:", 325, 15, 20, DARKBLUE);
+        
+        // GuiValueBox(Rectangle{ 400.0f, 15.0f, 40.0f, 25.0f }, "", &inputXValue, 0, 110, true);
+        if (GuiTextBox(Rectangle{ 410, 12, 45, 25 }, &inputXText, 25, true)) XValueBoxEditMode != XValueBoxEditMode;
+
+        const float xVal = atof(&inputXText);
+        const float yVal = ULRegression::Hypothesis(xVal, finalThetas.zero, finalThetas.one);
+    
+        DrawText(TextFormat("y value: %01f", yVal), 475, 15, 20, DARKBLUE);
+
+        // Draw point
+
+        // Normalize datas
+        float normX = xVal * graphWidth / xMaxValue;
+        float normY = yVal * graphHeight / yMaxValue;
+
+        // Put them in the graph according to
+        // ... windowOffset
+        normX += graphOffset;
+        normY += graphOffset;
+
+        // ... reversed y axis
+        normY = screenHeight - normY;
+
+        DrawCircleV(Vector2{ normX, normY }, 5.0f, DARKBLUE);
+    }
+
+    //^ Texts ========================================================
     //^ ==============================================================
 }
 
