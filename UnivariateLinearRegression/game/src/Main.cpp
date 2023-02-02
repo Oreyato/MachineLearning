@@ -31,7 +31,6 @@ static const char* windowName = "Univariate Linear Regression";
 static float theta_0 = 0.0f;
 static float theta_1 = 0.0f;
 
-static Thetas thetas;
 static vector<Thetas> thetasSets;
 
 static Datas datas;
@@ -155,7 +154,7 @@ void Init() {
     //^ Prediction test, before gradient descent =====================
 
     // Train algorithm
-    thetasSets = ULRegression::FindBestThetas(theta_0, theta_1, 0.0001f, 0.00001f, xVal, yVal);
+    thetasSets = ULRegression::RefineThetas(theta_0, theta_1, 0.0001f, 0.00001f, xVal, yVal);
 
     cout << "\n" << endl;
 

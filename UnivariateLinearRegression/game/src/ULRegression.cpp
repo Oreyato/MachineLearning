@@ -152,7 +152,7 @@ void ULRegression::GradientDescent(float& theta_0P, float& theta_1P, const float
     theta_1P -= tempTheta_1;
 }
 
-const vector<Thetas> ULRegression::FindBestThetas(float& theta_0P, float& theta_1P, const float alphaP, const float diffThresholdP, const vector<float>& xP, const vector<float>& yP) {
+const vector<Thetas> ULRegression::RefineThetas(float& theta_0P, float& theta_1P, const float alphaP, const float diffThresholdP, const vector<float>& xP, const vector<float>& yP) {
     // ================================================================
     // Handle datasets size difference ================================
     if (xP.size() != yP.size()) {
