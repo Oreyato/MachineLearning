@@ -7,19 +7,13 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <math.h>
 
 #include <fstream>
 #include <sstream>
 
 using namespace std;
-
-struct Datas
-{
-    vector<float> x;
-    vector<float> y;
-    uint32_t size;
-};
 
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
@@ -36,9 +30,16 @@ static vector<Thetas> thetasSets;
 static Datas datas;
 
 //v Graph values =================================================
+static Color graphBGColor = RAYWHITE;
+
 static float graphOffset = 60.0f;
 static float xPadding = 10.0f;
 static float yPadding = 10.0f;
+static float xMaxValue = 200.0f;
+static float yMaxValue = 115.0f;
+static float xMinValue = 0.0f;
+static float yMinValue = 0.0f;
+
 static Color subLinesColor = Color{ 200, 200, 200, 255 };
 static Color thiSubLinesColor = Color{ 125, 125, 125, 255 };
 static int8_t thickerLinesFrequency = 5;
@@ -47,8 +48,6 @@ static float marksTextSize = 15.0f;
 static float axisThickness = 4.0f;
 
 static float pointRadius = 2.0f;
-static float xMaxValue = 105.0f;
-static float yMaxValue = 115.0f;
 
 //^ Graph values =================================================
 //v Thetas curves ================================================
@@ -339,6 +338,17 @@ void DrawUI(void) {
     DrawDataPoints(graphWidth, graphHeight);
     DrawThetasCurves(graphWidth, graphHeight, graphOrigin);
 
+    if (showEducationalContent)
+    {
+        DrawEduContent(graphWidth, graphHeight, graphOrigin);
+    }
+
+    //// Draw caches ==========================
+    //DrawRectangle(0, 0, graphOffset, screenHeight, graphBGColor);
+    //DrawRectangle(screenWidth - graphOffset, 0, graphOffset, screenHeight, graphBGColor);
+    //DrawRectangle(0, screenHeight - graphOffset, screenWidth, graphOffset, graphBGColor);
+    //DrawRectangle(0, 0, screenWidth, graphOffset, graphBGColor);
+
     //v ==============================================================
     //v Thetas text ==================================================
 
@@ -371,11 +381,6 @@ void DrawUI(void) {
 
     //^ Inputs text ==================================================
     //^ ==============================================================
-
-    if (showEducationalContent)
-    {
-        DrawEduContent(graphWidth, graphHeight, graphOrigin);
-    }
 }
 
 void Inputs(void)

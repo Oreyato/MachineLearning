@@ -9,6 +9,13 @@ struct Thetas
     float one = 0.0f;
 };
 
+struct Datas
+{
+    std::vector<float> x;
+    std::vector<float> y;
+    uint32_t size;
+};
+
 class ULRegression
 {
 public:
