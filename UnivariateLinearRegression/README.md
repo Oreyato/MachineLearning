@@ -12,7 +12,9 @@ ___
         - Colors
 
 - Educational content
+    - Change x using sliders and instantly see the point position on the best thetas curve
     - Change thetas using sliders and instantly see the corresponding curve
+    
 
 ___
 ### Inputs
