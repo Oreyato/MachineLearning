@@ -6,6 +6,10 @@ ___
 ### Features
 - High customization (look at "Local Variables Definition" section)
     - Customizable graph
+        - Max values
+        - Padding
+        - Thickness
+        - Colors
 
 - Educational content
     - Change thetas using sliders and instantly see the corresponding curve
