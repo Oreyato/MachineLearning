@@ -4,8 +4,8 @@ Experimentations using [raylib](https://github.com/raysan5/raylib)
 
 ___
 ### Features
-- High customization (look at "Local Variables Definition" section)
-    - Customizable graph
+- Customization (look at "Local Variables Definition" section)
+    - Graph
         - Max values
         - Padding
         - Thickness
