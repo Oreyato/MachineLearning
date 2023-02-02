@@ -64,13 +64,13 @@ static Color thetasCurvesColor = RED;
 
 //^ Thetas curves ================================================
 
-//v EDUCATIONAL CONTENT 
+//v EDUCATIONAL CONTENT ==========================================
 static bool showEducationalContent = true;
 
 static float eduThetasCurveThickness = 4.0f;
 static Color eduThetasCurveColor = GREEN;
 
-//v Sliders ======================================================
+//v Sliders =============================
 static float theta0Slider = 0.0f;
 static float theta1Slider = 0.0f;
 
@@ -80,8 +80,8 @@ static float maxT0SliderValue = 2.0f;
 static float minT1SliderValue = -0.25f;
 static float maxT1SliderValue = 1.5f;
 
-//^ Sliders ======================================================
-//^ EDUCATIONAL CONTENT 
+//^ Sliders =============================
+//^ EDUCATIONAL CONTENT ========================================== 
  
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
@@ -91,10 +91,9 @@ static void Init(void);
 
 static void Inputs(void);
 
-static void UpdateDrawFrame(void);          // Update and draw one frame
+static void UpdateDrawFrame(void);
 static void Update(void);
 static void DrawUI(void);
-static void Draw(void);
 
 static const vector<vector<float>> RetrieveCsvFileData(string filePathP);
 static float Hypothesis(const float xP, const float theta_0P, const float theta_1P);
@@ -115,8 +114,6 @@ int main(void)
 
     Init();
     //--------------------------------------------------------------------------------------
-
-
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -356,7 +353,7 @@ void FindBestThetas(float& theta_0P, float& theta_1P, const float alphaP, const 
 }
 
 // Update and draw game frame
-static void UpdateDrawFrame(void)
+void UpdateDrawFrame(void)
 {
     Update();
 
@@ -366,23 +363,17 @@ static void UpdateDrawFrame(void)
     BeginDrawing();
     ClearBackground(RAYWHITE);
     //DrawFPS(10, 10);
-
-    Draw();
     DrawUI();
 
     EndDrawing();
     //----------------------------------------------------------------------------------
 }
 
-static void Update(void) {
+void Update(void) {
 
 }
 
-static void Draw(void) {
-
-}
-
-static void DrawGraph(float graphWidth, float graphHeight, Vector2 graphOrigin) {
+void DrawGraph(float graphWidth, float graphHeight, Vector2 graphOrigin) {
     // Draw grid ============================
     // Draw absissa marks
     uint8_t absMarksNb = floor(xMaxValue / xPadding);
@@ -445,17 +436,7 @@ static void DrawGraph(float graphWidth, float graphHeight, Vector2 graphOrigin) 
     DrawLineEx(ordStartPos, ordEndPos, axisThickness, BLACK);
 }
 
-static void DrawUI(void) {
-    float graphWidth = screenWidth - 2 * graphOffset;
-    float graphHeight = screenHeight - 2 * graphOffset;
-
-    Vector2 graphOrigin{ graphOffset, screenHeight - graphOffset };
-
-    DrawGraph(graphWidth, graphHeight, graphOrigin);
-
-    //v ==============================================================
-    //v Draw data points =============================================
-
+void DrawDataPoints(float graphWidth, float graphHeight) {
     for (uint32_t i = 0; i < datas.size; i++)
     {
         // Normalize datas
@@ -472,11 +453,9 @@ static void DrawUI(void) {
 
         DrawCircleV(Vector2{ normX, normY }, pointRadius, BLUE);
     }
+}
 
-    //^ Draw data points =============================================
-    //^ ==============================================================
-    //v ============================================================== 
-    //v Draw thetas curves ===========================================
+void DrawThetasCurves(float graphWidth, float graphHeight, Vector2 graphOrigin) {
     if (showAllCurves)
     {
         for (uint32_t i = 0; i < thetasSets.size(); i++)
@@ -503,9 +482,47 @@ static void DrawUI(void) {
             thetasCurvesColor
         );
     }
+}
 
-    //^ Draw thetas curves ===========================================
-    //^ ==============================================================
+void DrawEduContent(float graphWidth, float graphHeight, Vector2 graphOrigin) {
+    //v ==============================================================
+    //v Sliders ======================================================
+    float slidersWidth = 100.0f;
+    float slidersXPos = screenWidth - slidersWidth - 25.0f;
+    float slidersYpos = screenHeight - screenHeight * 0.2f;
+
+    theta0Slider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 30.0f, slidersWidth, 20 }, "Theta0", NULL, theta0Slider, minT0SliderValue, maxT0SliderValue);
+    theta1Slider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos, slidersWidth, 20 }, "Theta1", NULL, theta1Slider, minT1SliderValue, maxT1SliderValue);
+
+    // Draw thetas values
+    DrawText(TextFormat("%05f", theta0Slider), slidersXPos + 20.0f, slidersYpos - 27.0f, 15.0f, DARKBLUE);
+    DrawText(TextFormat("%05f", theta1Slider), slidersXPos + 20.0f, slidersYpos + 3.0f, 15.0f, DARKBLUE);
+
+    // Draw test curve
+    const float yHyp = Hypothesis(xMaxValue, theta0Slider, theta1Slider);
+    const float yHypNorm = yHyp * graphHeight / yMaxValue;
+
+    DrawLineEx(
+        Vector2{ graphOrigin.x, graphOrigin.y - theta0Slider },
+        Vector2{ graphOrigin.x + graphWidth, graphOrigin.y - yHypNorm },
+        eduThetasCurveThickness,
+        eduThetasCurveColor
+    );
+
+    //^ Sliders ======================================================
+    //^ ============================================================== 
+}
+
+void DrawUI(void) {
+    float graphWidth = screenWidth - 2 * graphOffset;
+    float graphHeight = screenHeight - 2 * graphOffset;
+
+    Vector2 graphOrigin{ graphOffset, screenHeight - graphOffset };
+
+    DrawGraph(graphWidth, graphHeight, graphOrigin);
+    DrawDataPoints(graphWidth, graphHeight);
+    DrawThetasCurves(graphWidth, graphHeight, graphOrigin);
+
     //v ==============================================================
     //v Thetas text ==================================================
 
@@ -538,34 +555,10 @@ static void DrawUI(void) {
 
     //^ Inputs text ==================================================
     //^ ==============================================================
+
     if (showEducationalContent)
     {
-        //v ==============================================================
-        //v Sliders ======================================================
-        float slidersWidth = 100.0f;
-        float slidersXPos = screenWidth - slidersWidth - 25.0f;
-        float slidersYpos = screenHeight - screenHeight * 0.2f;
-
-        theta0Slider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 30.0f, slidersWidth, 20 }, "Theta0", NULL, theta0Slider, minT0SliderValue, maxT0SliderValue);
-        theta1Slider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos, slidersWidth, 20 }, "Theta1", NULL, theta1Slider, minT1SliderValue, maxT1SliderValue);
-
-        // Draw thetas values
-        DrawText(TextFormat("%05f", theta0Slider), slidersXPos + 20.0f, slidersYpos - 27.0f, 15.0f, DARKBLUE);
-        DrawText(TextFormat("%05f", theta1Slider), slidersXPos + 20.0f, slidersYpos + 3.0f, 15.0f, DARKBLUE);
-
-        // Draw test curve
-        const float yHyp = Hypothesis(xMaxValue, theta0Slider, theta1Slider);
-        const float yHypNorm = yHyp * graphHeight / yMaxValue;
-
-        DrawLineEx(
-            Vector2{ graphOrigin.x, graphOrigin.y - theta0Slider },
-            Vector2{ graphOrigin.x + graphWidth, graphOrigin.y - yHypNorm },
-            eduThetasCurveThickness,
-            eduThetasCurveColor
-        );
-
-        //^ Sliders ======================================================
-        //^ ============================================================== 
+        DrawEduContent(graphWidth, graphHeight, graphOrigin);
     }
 }
 
