@@ -65,6 +65,7 @@ static float eduThetasCurveThickness = 4.0f;
 static Color eduThetasCurveColor = GREEN;
 
 static int inputXValue = 0;
+static float inputXFValue = 0.0f;
 static char inputXText = '0';
 static bool XValueBoxEditMode = false;
 
@@ -402,12 +403,15 @@ void DrawUI(void) {
         DrawText("x value:", 325, 15, 20, DARKBLUE);
         
         // GuiValueBox(Rectangle{ 400.0f, 15.0f, 40.0f, 25.0f }, "", &inputXValue, 0, 110, true);
-        if (GuiTextBox(Rectangle{ 410, 12, 45, 25 }, &inputXText, 25, true)) XValueBoxEditMode != XValueBoxEditMode;
+        // if (GuiTextBox(Rectangle{ 410, 12, 45, 25 }, &inputXText, 25, true)) XValueBoxEditMode != XValueBoxEditMode;
 
-        const float xVal = atof(&inputXText);
-        const float yVal = ULRegression::Hypothesis(xVal, finalThetas.zero, finalThetas.one);
+        inputXFValue = GuiSliderBar(Rectangle{ 410, 12, 100, 25 }, NULL, NULL, inputXFValue, xMinValue, xMaxValue);
+        DrawText(TextFormat("%03f", inputXFValue), 410 + 20.0f, 12 + 7.0f, 15.0f, DARKBLUE);
+
+        const float xVal = inputXFValue;
+        const float yVal = ULRegression::Hypothesis(inputXFValue, finalThetas.zero, finalThetas.one);
     
-        DrawText(TextFormat("y value: %01f", yVal), 475, 15, 20, DARKBLUE);
+        DrawText(TextFormat("y value: %01f", yVal), 520, 15, 20, DARKBLUE);
 
         // Draw point
 
