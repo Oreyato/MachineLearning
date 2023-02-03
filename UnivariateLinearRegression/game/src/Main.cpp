@@ -29,6 +29,9 @@ static vector<Thetas> thetasSets;
 
 static Datas datas;
 
+static vector<float> xVal;
+static vector<float> yVal;
+
 //v Graph values =================================================
 static Color graphBGColor = RAYWHITE;
 
@@ -74,7 +77,9 @@ static float theta0Slider = 0.0f;
 static float theta1Slider = 0.0f;
 
 static float alphaSlider = 0.0001f;
+static bool updatedAlpha = false;
 static float thresholdSlider = 0.00001f;
+static bool updatedThreshold = false;
 
 // ===
 
@@ -84,11 +89,11 @@ static float maxT0SliderValue = 2.0f;
 static float minT1SliderValue = -0.25f;
 static float maxT1SliderValue = 1.5f;
 
-static float minAlphaSliderValue = 0.00001f;
-static float maxAlphaSliderValue = 0.001f;
+static double minAlphaSliderValue = 0.00001f;
+static double maxAlphaSliderValue = 0.0001f;
 
-static float minThresholdSliderValue = 0.000001f;
-static float maxThresholdSliderValue = 0.0001f;
+static double minThresholdSliderValue = 0.00001f;
+static double maxThresholdSliderValue = 0.0001f;
 
 //^ Sliders =============================
 //^ EDUCATIONAL CONTENT ========================================== 
@@ -142,8 +147,8 @@ void Init() {
     //v Retrieve training values =====================================
     const vector<vector<float>> retrievedData = ULRegression::RetrieveCsvFileData("Resources/train.csv");
 
-    const vector<float> xVal{ retrievedData[0] };
-    const vector<float> yVal{ retrievedData[1] };
+    xVal = retrievedData[0];
+    yVal = retrievedData[1];
 
     datas.x = retrievedData[0];
     datas.y = retrievedData[1];
@@ -169,7 +174,7 @@ void Init() {
     //^ Prediction test, before gradient descent =====================
 
     // Train algorithm
-    thetasSets = ULRegression::RefineThetas(theta_0, theta_1, 0.0001f, 0.00001f, xVal, yVal);
+    thetasSets = ULRegression::RefineThetas(theta_0, theta_1, alphaSlider, thresholdSlider, xVal, yVal);
 
     cout << "\n" << endl;
 
@@ -201,7 +206,18 @@ void UpdateDrawFrame(void)
 }
 
 void Update(void) {
+    if (updatedThreshold || updatedAlpha) {
+        // thetasSets.clear();
 
+        thetasSets = ULRegression::RefineThetas(theta_0, theta_1, alphaSlider, thresholdSlider, xVal, yVal);
+
+        thetasSets.shrink_to_fit();
+
+        cout << thetasSets.capacity() << endl;
+
+        updatedThreshold = false;
+        updatedAlpha = false;
+    }
 }
 
 void DrawGraph(float graphWidth, float graphHeight, Vector2 graphOrigin) {
@@ -287,9 +303,11 @@ void DrawDataPoints(float graphWidth, float graphHeight) {
 }
 
 void DrawThetasCurves(float graphWidth, float graphHeight, Vector2 graphOrigin) {
+    uint32_t thetasSetSize = thetasSets.size();
+
     if (showAllCurves)
     {
-        for (uint32_t i = 0; i < thetasSets.size(); i++)
+        for (uint32_t i = 0; i < thetasSetSize; i++)
         {
             const float yHyp =  ULRegression::Hypothesis(xMaxValue, thetasSets[i].zero, thetasSets[i].one);
             const float yHypNorm = yHyp * graphHeight / yMaxValue;
@@ -325,8 +343,20 @@ void DrawEduContent(float graphWidth, float graphHeight, Vector2 graphOrigin) {
     theta0Slider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 30.0f, slidersWidth, 20 }, "Theta0", NULL, theta0Slider, minT0SliderValue, maxT0SliderValue);
     theta1Slider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos, slidersWidth, 20 }, "Theta1", NULL, theta1Slider, minT1SliderValue, maxT1SliderValue);
 
-    thresholdSlider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 90.0f, slidersWidth, 20 }, "Threshold", NULL, thresholdSlider, minAlphaSliderValue, maxAlphaSliderValue);
-    alphaSlider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 120.0f, slidersWidth, 20 }, "Alpha", NULL, alphaSlider, minThresholdSliderValue, maxThresholdSliderValue);
+
+    float tempThresholdSlider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 90.0f, slidersWidth, 20 }, "Threshold", NULL, thresholdSlider, minThresholdSliderValue, maxThresholdSliderValue);
+    if (tempThresholdSlider != thresholdSlider) {
+        thresholdSlider = tempThresholdSlider;
+
+        updatedThreshold = true;
+    }
+    
+    float tempAlphaSlider = GuiSliderBar(Rectangle{ slidersXPos, slidersYpos - 120.0f, slidersWidth, 20 }, "Alpha", NULL, alphaSlider, minAlphaSliderValue, maxAlphaSliderValue);
+    if (tempAlphaSlider != alphaSlider) {
+        alphaSlider = tempAlphaSlider;
+
+        updatedAlpha = true;
+    }
 
     // Draw values
     DrawText(TextFormat("%05f", theta0Slider), slidersXPos + 20.0f, slidersYpos - 27.0f, 15.0f, DARKBLUE);
@@ -364,11 +394,11 @@ void DrawUI(void) {
         DrawEduContent(graphWidth, graphHeight, graphOrigin);
     }
 
-    //// Draw caches ==========================
+    // Draw caches ==========================
     //DrawRectangle(0, 0, graphOffset, screenHeight, graphBGColor);
     //DrawRectangle(screenWidth - graphOffset, 0, graphOffset, screenHeight, graphBGColor);
     //DrawRectangle(0, screenHeight - graphOffset, screenWidth, graphOffset, graphBGColor);
-    //DrawRectangle(0, 0, screenWidth, graphOffset, graphBGColor);
+    DrawRectangle(0, 0, screenWidth, graphOffset, graphBGColor);
 
     //v ==============================================================
     //v Texts ========================================================
