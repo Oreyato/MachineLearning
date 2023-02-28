@@ -2,7 +2,7 @@
 
 Experimentations using [raylib](https://github.com/raysan5/raylib)
 
-![https://github.com/Oreyato/MachineLearning/blob/main/UnivariateLinearRegression/Resources/demo.gif]
+![Image](https://github.com/Oreyato/MachineLearning/blob/main/UnivariateLinearRegression/Resources/demo.gif)
 ___
 ### Features
 - Customization (look at "Local Variables Definition" section)
